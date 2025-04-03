@@ -1,0 +1,272 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>Weekly Workout Schedule</h2>
+
+    <!-- Loading Screen -->
+    <div id="loading-overlay">
+        <div class="loading-spinner"></div>
+        <p>Generating your workout plan...</p>
+    </div>
+
+    <div id="schedule-container" style="display: none;">
+        {% for day, exercises_in_day in schedule.items() %}
+            <div class="day-card">
+                <h3>{{ day }}</h3>
+                <div class="exercise-scroll"> <!-- HORIZONTAL SCROLL CONTAINER -->
+                    {% for exercise in exercises_in_day %}
+                        <div class="exercise-card" data-exercise='{{ exercise | tojson | safe }}'>
+                            <h4>{{ exercise["Exercise Name"] }}</h4>
+                            <p><strong>Muscle Group:</strong> {{ exercise["Muscle"] }}</p>
+                            <p><strong>Difficulty:</strong> {{ exercise["Difficulty"] }}</p>
+                            <p><strong>Sets:</strong> {{ exercise["Sets"] }}</p>
+                            <p><strong>Reps:</strong> {{ exercise["Reps"] }}</p>
+                            <p><strong>Rest:</strong> {{ exercise["Rest (seconds)"] }} seconds</p>
+
+                            <!-- Display Average Rating and Total Ratings -->
+                            {% set rating_data = exercise_ratings.get(exercise["Exercise Name"], {"avg_rating": 0.0, "rating_count": 0}) %}
+                            <p><strong>Average Rating:</strong> {{ "%.1f"|format(rating_data["avg_rating"] | float) }} ⭐</p>
+                            <p><strong>Total Ratings:</strong> {{ rating_data["rating_count"] }}</p>
+
+                            <!-- Rating Form -->
+                            <form action="{{ url_for('main.rate_exercise', exercise_name=exercise['Exercise Name']) }}" method="POST">
+                                <label for="rating">Rate (1-5):</label>
+                                <input type="number" name="rating" min="1" max="5" required>
+                                <button type="submit">Submit</button>
+                            </form>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+        {% endfor %}
+    </div>
+</div>
+        <!-- MODAL POP-UP -->
+<div id="exercise-modal" class="ex-modal">
+    <div class="ex-modal-content">
+        <span class="close" onclick="closeExerciseModal()">&times;</span>
+        <h3 id="modal-exercise-name"></h3>
+        <p><strong>Muscle Group:</strong> <span id="modal-muscle"></span></p>
+        <p><strong>Difficulty:</strong> <span id="modal-difficulty"></span></p>
+        <p><strong>Sets:</strong> <span id="modal-sets"></span></p>
+        <p><strong>Reps:</strong> <span id="modal-reps"></span></p>
+        <p><strong>Rest:</strong> <span id="modal-rest"></span> seconds</p>
+        <p><strong>Equipment:</strong> <span id="modal-equipment"></span></p>
+        <p><strong>Preparation:</strong></p>
+        <p id="modal-preparation"></p>
+        <p><strong>How to do it:</strong></p>
+        <p id="modal-execution"></p>
+    </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const loadingOverlay = document.getElementById("loading-overlay");
+    const scheduleContainer = document.getElementById("schedule-container");
+    document.getElementById("exercise-modal").style.display = "none"
+
+    setTimeout(() => {
+        loadingOverlay.style.display = "none"; // Hide loading screen
+        scheduleContainer.style.display = "block"; // Show schedule
+    }, 1500); // Simulated delay (adjust as needed)
+});
+
+document.addEventListener("DOMContentLoaded", function () {
+    const exerciseCards = document.querySelectorAll(".exercise-card");
+
+    exerciseCards.forEach(card => {
+        card.addEventListener("click", function () {
+            const exerciseJson = this.getAttribute("data-exercise");
+            openExerciseModal(exerciseJson);
+        });
+    });
+});
+
+function openExerciseModal(exerciseJson) {
+    if (!exerciseJson) {
+        console.error("No exercise data received.");
+        return;
+    }
+
+    try {
+        const exercise = JSON.parse(exerciseJson);
+
+        document.getElementById("modal-exercise-name").textContent = exercise["Exercise Name"] || "Unknown";
+        document.getElementById("modal-muscle").textContent = exercise["Muscle"] || "N/A";
+        document.getElementById("modal-difficulty").textContent = exercise["Difficulty"] || "N/A";
+        document.getElementById("modal-sets").textContent = exercise["Sets"] || "N/A";
+        document.getElementById("modal-reps").textContent = exercise["Reps"] || "N/A";
+        document.getElementById("modal-rest").textContent = exercise["Rest (seconds)"] || "N/A";
+        document.getElementById("modal-equipment").textContent = exercise["Equipment"] || "None";
+        document.getElementById("modal-preparation").textContent = exercise["Preparation"] || "No setup information available.";
+        document.getElementById("modal-execution").textContent = exercise["Execution"] || "No Information available";
+
+        document.getElementById("exercise-modal").style.display = "flex";
+    } catch (error) {
+        console.error("Error parsing exercise JSON:", error);
+    }
+}
+
+function closeExerciseModal() {
+    document.getElementById("exercise-modal").style.display = "none";
+}
+
+// Close modal when clicking outside
+window.onclick = function(event) {
+    const modal = document.getElementById("exercise-modal");
+    if (event.target == modal) {
+        modal.style.display = "none";
+    }
+}
+</script>
+
+{% endblock %}
+
+{% block styles %}
+<style>
+    /* Loading Overlay */
+    #loading-overlay {
+        display: flex;
+        position: fixed;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        color: white;
+        font-size: 1.5rem;
+        z-index: 9999;
+    }
+
+    .loading-spinner {
+        width: 50px;
+        height: 50px;
+        border: 6px solid rgba(255, 255, 255, 0.3);
+        border-radius: 50%;
+        border-top-color: white;
+        animation: spin 1s linear infinite;
+        margin-bottom: 10px;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    /* General Styles */
+    body {
+        font-family: 'Arial', sans-serif;
+        background-color: #f4f4f9;
+    }
+
+    .container {
+        max-width: 1200px;
+        margin-top: 40px;
+    }
+
+    h2 {
+        text-align: center;
+        color: #333;
+        margin-bottom: 30px;
+    }
+
+    .day-card {
+        background-color: #fff;
+        border-radius: 8px;
+        padding: 20px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        margin-bottom: 30px;
+    }
+
+    .day-card h3 {
+        text-align: center;
+        font-size: 24px;
+        color: #3498db;
+        margin-bottom: 20px;
+    }
+
+    .exercise-scroll {
+        display: flex;
+        overflow-x: auto;
+        gap: 15px;
+        padding-bottom: 10px;
+        white-space: nowrap;
+        scroll-snap-type: x mandatory;
+    }
+
+    .exercise-scroll::-webkit-scrollbar {
+        height: 8px;
+    }
+
+    .exercise-scroll::-webkit-scrollbar-thumb {
+        background: #3498db;
+        border-radius: 10px;
+    }
+
+    .exercise-card {
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        padding: 15px;
+        width: 280px;
+        flex: 0 0 auto;
+        scroll-snap-align: start;
+        transition: transform 0.3s ease-in-out;
+    }
+
+    .exercise-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .exercise-card h4 {
+        color: #2c3e50;
+        font-size: 18px;
+    }
+
+    .exercise-card p {
+        color: #7f8c8d;
+        font-size: 14px;
+        margin: 5px 0;
+    }
+
+    .exercise-card form {
+        margin-top: 10px;
+    }
+
+    .exercise-card form input {
+        width: 50px;
+        padding: 5px;
+        font-size: 14px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+        text-align: center;
+    }
+
+    .exercise-card form button {
+        background-color: #e67e22;
+        color: white;
+        padding: 6px 12px;
+        border: none;
+        border-radius: 5px;
+        font-size: 14px;
+        cursor: pointer;
+        transition: background 0.3s;
+    }
+
+    .exercise-card form button:hover {
+        background-color: #d35400;
+    }
+
+    @media (max-width: 768px) {
+        .exercise-scroll {
+            gap: 10px;
+        }
+
+        .exercise-card {
+            width: 250px;
+        }
+    }
+</style>
+{% endblock %}

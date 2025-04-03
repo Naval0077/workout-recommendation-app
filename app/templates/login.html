@@ -1,0 +1,19 @@
+<!-- app/templates/login.html -->
+{% extends "base.html" %}
+
+{% block content %}
+    <h2>Login</h2>
+    <form method="POST">
+        {{ form.hidden_tag() }}
+        <div>
+            {{ form.email.label }} {{ form.email() }}
+        </div>
+        <div>
+            {{ form.password.label }} {{ form.password() }}
+        </div>
+        <div>
+            {{ form.submit() }}
+        </div>
+    </form>
+    <p>Don't have an account? <a href="{{ url_for('main.register') }}">Register here</a>.</p>
+{% endblock %}

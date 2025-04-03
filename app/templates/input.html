@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+{% block content %}
+    <h2>Enter Your Details</h2>
+    <form method="POST">
+        {{ form.hidden_tag() }}
+        <div>
+            {{ form.height.label }} {{ form.height() }}
+        </div>
+        <div>
+            {{ form.weight.label }} {{ form.weight() }}
+        </div>
+        <div>
+            {{ form.age.label }} {{ form.age() }}
+        </div>
+        <div>
+            {{ form.gender.label }} {{ form.gender() }}
+        </div>
+        <div>{{ form.pushups.label }} {{ form.pushups() }}
+    <button type="button" id="startPushupTest">Start Push-Up Test</button>
+</div>
+        <div>
+            {{ form.squats.label }} {{ form.squats() }}
+            <button type="button" id="startSquatTest">Start Squat Test</button>
+        </div>
+        <div>
+            {{ form.plank_time.label }} {{ form.plank_time() }}
+        </div>
+        <div>
+            {{ form.goal.label }} {{ form.goal() }}
+        </div>
+        <div>
+            {{ form.commitment.label }} {{ form.commitment() }}
+        </div>
+        <div>
+            {{ form.submit() }}
+        </div>
+    </form>
+<div id="pushupModal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2>Push-Up Test</h2>
+        <p>Perform as many push-ups as possible in 60 seconds.</p>
+
+        <!-- Live Push-Up Feed -->
+        <div>
+            <img id="pushupFeed" width="640" height="480">
+        </div>
+        <button id="startpushTest">Start Test</button>
+    </div>
+</div>
+<!-- Squat Modal -->
+<div id="squatModal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2>Squat Test</h2>
+        <p>Perform as many squats as possible in 60 seconds.</p>
+        <img id="squatFeed" width="640" height="480">
+        <button id="startSquatCounter">Start Test</button>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        let modal = document.getElementById("pushupModal");
+        let squatModal = document.getElementById("squatModal");
+
+        let startPushupTest = document.getElementById("startpushTest");
+        let startSquatTest = document.getElementById("startSquatTest");
+
+        let pushupCountField = document.getElementById("pushup_count");
+        let livePushupCount = document.getElementById("livePushupCount");
+        let closeModal = document.getElementsByClassName("close")[0];
+
+        let pushupFeed = document.getElementById("pushupFeed");
+        let squatFeed = document.getElementById("squatFeed");
+
+        document.getElementById("startPushupTest").onclick = function () {
+            modal.style.display = "block";
+        };
+
+        startSquatTest.onclick = function () {
+                squatModal.style.display = "block";
+            };
+
+        closeModal.onclick = function () {
+            modal.style.display = "none";
+            squatModal.style.display = "none";
+            pushupFeed.src = "";
+            squatFeed.src = "";
+        };
+
+        window.onclick = function (event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+                squatModal.style.display = "none";
+                pushupFeed.src = "";
+                squatFeed.src = "";
+            }
+        };
+
+        startPushupTest.onclick = function () {
+            pushupFeed.src = "{{ url_for('main.pushup_feed') }}";
+            setTimeout(() => {
+                fetch("{{ url_for('main.save_pushups') }}", { method: "POST" })
+                    .then(response => response.json())
+                    .then(data => {
+                        pushupCountField.value = data.count; // Save count in form field
+                        pushupFeed.src = ""; // Stop the camera feed
+                        modal.style.display = "none";
+                        alert("Push-up count saved: " + data.count);
+
+                    })
+                    .catch(error => {
+                        console.error("Error saving push-ups:", error);
+                    });
+            }, 60000); // Run for 60 seconds
+        };
+
+        document.getElementById("startSquatCounter").onclick = function () {
+            squatFeed.src = "{{ url_for('main.squats_feed') }}";
+            setTimeout(() => {
+                fetch("{{ url_for('main.save_squats') }}", { method: "POST" })
+                    .then(response => response.json())
+                    .then(data => {
+                        document.getElementById("squats").value = data.count;
+                        squatModal.style.display = "none";
+                        alert("Squats recorded: " + data.count);
+                    })
+                    .catch(error => console.error("Error:", error));
+            }, 60000);
+        };
+    });
+</script>
+{% endblock %}

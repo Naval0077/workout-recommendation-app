@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+{% block content %}
+    <h2>Fitness Test</h2>
+    <p>Perform the push-up and squat test. Your fitness level will be updated if you improve.</p>
+
+    <form method="POST">
+        {{ form.hidden_tag() }}
+
+        <div>
+            <label>Push-Ups: </label>
+            {{ form.pushups() }}
+            <button type="button" id="startPushupTest">Start Push-Up Test</button>
+        </div>
+
+        <div>
+            <label>Squats: </label>
+            {{ form.squats() }}
+            <button type="button" id="startSquatTest">Start Squat Test</button>
+        </div>
+
+        <div>
+            <label>New Fitness Level: </label>
+            {{ form.new_fitness_level() }}
+        </div>
+
+        <div>
+            {{ form.submit() }}
+        </div>
+    </form>
+
+    <!-- Push-Up Modal -->
+    <div id="pushupModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Push-Up Test</h2>
+            <p>Perform as many push-ups as possible in 60 seconds.</p>
+            <img id="pushupFeed" width="640" height="480">
+            <button id="startPushupCounter">Start Test</button>
+        </div>
+    </div>
+
+    <!-- Squat Modal -->
+    <div id="squatModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Squat Test</h2>
+            <p>Perform as many squats as possible in 60 seconds.</p>
+            <img id="squatFeed" width="640" height="480">
+            <button id="startSquatCounter">Start Test</button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            let pushupModal = document.getElementById("pushupModal");
+            let squatModal = document.getElementById("squatModal");
+
+            let startPushupTest = document.getElementById("startPushupTest");
+            let startSquatTest = document.getElementById("startSquatTest");
+
+            let pushupFeed = document.getElementById("pushupFeed");
+            let squatFeed = document.getElementById("squatFeed");
+
+            let closeButtons = document.getElementsByClassName("close");
+
+            startPushupTest.onclick = function () {
+                pushupModal.style.display = "block";
+            };
+
+            startSquatTest.onclick = function () {
+                squatModal.style.display = "block";
+            };
+
+            Array.from(closeButtons).forEach(button => {
+                button.onclick = function () {
+                    pushupModal.style.display = "none";
+                    squatModal.style.display = "none";
+                    pushupFeed.src = "";
+                    squatFeed.src = "";
+                };
+            });
+
+            document.getElementById("startPushupCounter").onclick = function () {
+                pushupFeed.src = "{{ url_for('main.pushup_feed') }}";
+                setTimeout(() => {
+                    fetch("{{ url_for('main.save_pushups') }}", { method: "POST" })
+                        .then(response => response.json())
+                        .then(data => {
+                            document.getElementById("pushups").value = data.count;
+                            pushupModal.style.display = "none";
+                            alert("Push-ups recorded: " + data.count);
+                        })
+                        .catch(error => console.error("Error:", error));
+                }, 60000);
+            };
+
+            document.getElementById("startSquatCounter").onclick = function () {
+                squatFeed.src = "{{ url_for('main.squats_feed') }}";
+                setTimeout(() => {
+                    fetch("{{ url_for('main.save_squats') }}", { method: "POST" })
+                        .then(response => response.json())
+                        .then(data => {
+                            document.getElementById("squats").value = data.count;
+                            squatModal.style.display = "none";
+                            alert("Squats recorded: " + data.count);
+                        })
+                        .catch(error => console.error("Error:", error));
+                }, 60000);
+            };
+        });
+    </script>
+{% endblock %}

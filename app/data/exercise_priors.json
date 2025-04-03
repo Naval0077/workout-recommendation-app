@@ -1,0 +1,29 @@
+{
+    "exercise_priors": {
+        "Upper Body": {
+            "Push-ups": 0.3298555494835669,
+            "Bench Press": 0.25125470317397497,
+            "Pull-ups": 0.16763504416848302,
+            "Dumbbell Rows": 0.08375156772465833,
+            "Bicep curls": 0.16750313544931666
+        },
+        "Lower Body": {
+            "Squats": 0.4,
+            "Lunges": 0.3,
+            "Deadlifts": 0.2,
+            "Leg Press": 0.1
+        },
+        "Core": {
+            "Russian Twists": 0.20100376253918004,
+            "Plank": 0.4020075250783601,
+            "Crunches": 0.2963549223937036,
+            "Mountain Climbers": 0.10063378998875631
+        },
+        "Cardio": {
+            "Running": 0.4,
+            "Cycling": 0.3,
+            "Jumping Jacks": 0.2,
+            "Burpees": 0.1
+        }
+    }
+}

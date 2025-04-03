@@ -1,0 +1,11 @@
+<h2>{{ exercise["Exercise Name"] }}</h2>
+<p><strong>Muscle Group:</strong> {{ exercise["Muscle"] }}</p>
+<p><strong>Difficulty:</strong> {{ exercise["Difficulty"] }}</p>
+<p><strong>Average Rating:</strong> {{ avg_rating }} (Total Ratings: {{ total_ratings }})</p>
+
+<!-- You can also include the rating submission form here -->
+<form action="{{ url_for('rate_exercise', exercise_name=exercise['Exercise Name']) }}" method="POST">
+  <label for="rating">Rate this Exercise (1-5):</label>
+  <input type="number" name="rating" min="1" max="5" required>
+  <button type="submit">Submit Rating</button>
+</form>

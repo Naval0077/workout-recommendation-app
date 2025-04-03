@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block title %}Push-Up Test{% endblock %}
+
+{% block content %}
+<h2>Push-Up Test</h2>
+<p>Do as many push-ups as you can in 1 minute.</p>
+
+<div>
+    <img src="{{ url_for('main.pushup_feed') }}" width="640" height="480">
+</div>
+
+<p>Push-ups Count: <span id="pushupCount">0</span></p>
+
+<script>
+    setTimeout(() => {
+        fetch("{{ url_for('main.save_pushups') }}", {
+            method: "POST"
+        })
+        .then(response => response.json())
+        .then(data => {
+            alert("Push-up count saved: " + data.count);
+            window.location.href = "{{ url_for('main.input') }}"; // Redirect after test
+        });
+    }, 60000); // Save after 60 seconds
+</script>
+
+{% endblock %}

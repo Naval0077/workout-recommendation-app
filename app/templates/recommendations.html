@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block content %}
+    <h2>Your Workout Recommendations</h2>
+    <ul>
+        {% for workout in workouts %}
+            <li>{{ workout.name }} - {{ workout.duration }}</li>
+        {% endfor %}
+    </ul>
+    <a href="{{ url_for('main.feedback', user_id=user_id) }}">Provide Feedback</a>
+{% endblock %}
