@@ -36,3 +36,4 @@ Flask-Migrate~=4.1.0
 gunicorn==22.0.0
 faiss-cpu
 sentence-transformers
+Flask-Bootstrap==3.3.7.1

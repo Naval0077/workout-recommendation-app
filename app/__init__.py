@@ -1,4 +1,5 @@
 from flask import Flask
+from flask_bootstrap import Bootstrap
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask_bcrypt import Bcrypt
@@ -18,6 +19,7 @@ def create_app():
     login_manager.init_app(app)
     bcrypt.init_app(app)
     login_manager.login_view = 'main.login'  # Route for the login page
+    Bootstrap(app)
 
     from app.routes import main
     app.register_blueprint(main)
