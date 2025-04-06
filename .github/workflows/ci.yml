@@ -25,8 +25,10 @@ jobs:
           --health-retries 5
 
     env:
+      # Ensure your Flask app config is set correctly to use the database
       FLASK_CONFIG: app.config.TestingConfig
-      DATABASE_URL: postgresql://testuser:testpass@localhost:5432/testdb
+      # If you're using SQLite locally and for testing in CI, change this to SQLite
+      DATABASE_URL: sqlite:///test_workouts.db  # For SQLite testing
 
     steps:
       - name: Checkout code
@@ -70,7 +72,7 @@ jobs:
 
       - name: Start Flask app in background
         run: |
-          export FLASK_APP=run
+          export FLASK_APP=run  # Update this line to use your correct startup file
           flask db upgrade
           nohup flask run --host=127.0.0.1 --port=5000 &
           # Wait for Flask to be fully up and running
