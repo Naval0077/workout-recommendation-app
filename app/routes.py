@@ -21,10 +21,20 @@ main = Blueprint('main', __name__)
 @main.route('/register', methods=['GET', 'POST'])
 def register():
     if current_user.is_authenticated:
-        return redirect(url_for('main.index'))
+        return redirect(url_for('main.input'))
 
     form = RegistrationForm()
     if form.validate_on_submit():
+        if form.validate_on_submit():
+            # Check if passwords match
+            if form.password.data != form.confirm_password.data:
+                flash('Passwords must match.', 'danger')
+                return render_template('register.html', form=form)
+
+        user = User.query.filter_by(email=form.email.data).first()
+        if user:
+            flash('Email already registered. Please log in.', 'danger')
+            return redirect(url_for('main.login'))  # Redirect to login page
         user = User(email=form.email.data)
         user.set_password(form.password.data)
         db.session.add(user)
@@ -55,6 +65,9 @@ def input():
     user_profile = UserProfile.query.filter_by(user_id=current_user.id).first()
 
     if form.validate_on_submit():
+        print(f"Gender: {form.gender.data}")
+        print(f"Goal: {form.goal.data}")
+        print(f"Commitment: {form.commitment.data}")
         count = get_pushup_count()
         print("Form submitted with data:", form.data)  # Debug: Print form data
         try:
@@ -88,7 +101,7 @@ def input():
             print(user_profile.fitness_level)
             db.session.commit()
             flash('Profile updated successfully!', 'success')
-            return redirect(url_for('main.schedule', user_id=current_user.id))
+            return redirect(url_for('main.customize_workout', user_id=current_user.id))
         except Exception as e:
             db.session.rollback()
             flash(f'An error occurred: {str(e)}', 'danger')
@@ -379,3 +392,9 @@ def customize_workout():
 
     return render_template('customize_workout.html', workout_pref=workout_pref, muscle_groups=muscle_groups)
 
+@main.route('/reset_db', methods=['GET'])
+def reset_db():
+    from app import db
+    db.drop_all()  # Drop all tables
+    db.create_all()  # Recreate tables
+    return 'Database reset', 200

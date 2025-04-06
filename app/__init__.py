@@ -1,3 +1,5 @@
+import os
+
 from flask import Flask
 from flask_bootstrap import Bootstrap
 from flask_sqlalchemy import SQLAlchemy
@@ -11,9 +13,10 @@ bcrypt = Bcrypt()
 migrate = Migrate()  # Initialize Migrate here
 
 def create_app():
+    from app.config import TestingConfig
     app = Flask(__name__)
-    app.config['SECRET_KEY'] = 'your_secret_key'
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///workouts.db'
+    config_class = os.getenv('FLASK_CONFIG', 'app.config.Config')
+    app.config.from_object(config_class)
     db.init_app(app)
     migrate.init_app(app, db)  # Pass db to migrate.init_app to associate with your database
     login_manager.init_app(app)

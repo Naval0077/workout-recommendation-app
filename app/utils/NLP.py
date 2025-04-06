@@ -134,7 +134,7 @@ def recommend_exercises_for_goal(exercises, goal_text, user_difficulty, top_k):
 # Get workout recommendations with difficulty range
 def get_recommendations(exercise_data, goal_text, top_k, min_diff, max_diff):
     # Get recommendations for both min and max difficulty
-    # vectorize_exercises_faiss(exercise_data)
+    vectorize_exercises_faiss(exercise_data)
     goal_recommendations_min = recommend_exercises_for_goal(exercise_data, goal_text, min_diff, top_k)
     goal_recommendations_max = recommend_exercises_for_goal(exercise_data, goal_text, max_diff, top_k)
 

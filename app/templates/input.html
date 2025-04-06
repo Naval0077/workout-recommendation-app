@@ -104,7 +104,7 @@
                 fetch("{{ url_for('main.save_pushups') }}", { method: "POST" })
                     .then(response => response.json())
                     .then(data => {
-                        pushupCountField.value = data.count; // Save count in form field
+                        document.getElementById("pushups").value = data.count;
                         pushupFeed.src = ""; // Stop the camera feed
                         modal.style.display = "none";
                         alert("Push-up count saved: " + data.count);

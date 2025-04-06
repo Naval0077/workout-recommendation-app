@@ -424,6 +424,7 @@ def build_workout_schedule(exercise, gender, age, pushups, squats, commitment, g
 
     schedule = {day: [] for day in days}
     selected_exercises = set()
+    num = 0
 
     for day in days:  # Only generate workouts for selected days
         if day not in daily_goals:
@@ -434,9 +435,10 @@ def build_workout_schedule(exercise, gender, age, pushups, squats, commitment, g
 
         # Add exercises for each muscle group
         for muscle in muscles:
+            num = num+1
             unique_exercises = set()
             goal_text = f"{muscle} muscles"
-            filtered = get_recommendations(exercise, goal_text, 5, min_diff, max_diff)
+            filtered = get_recommendations(exercise, goal_text, 10, min_diff, max_diff)
 
             while len(unique_exercises) < 2 and filtered:
                 ex = random.choice(filtered)
