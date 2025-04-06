@@ -36,5 +36,6 @@ Flask-Migrate~=4.1.0
 gunicorn==22.0.0
 faiss-cpu
 sentence-transformers==2.5.1
+transformers==4.38.2
 Flask-Bootstrap==3.3.7.1
 pytest
