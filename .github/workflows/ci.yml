@@ -54,7 +54,7 @@ jobs:
 
       - name: Install Cypress dependencies
         run: |
-          npm install --prefix cypress
+          npm install
 
       - name: Start Flask app in background
         run: |
