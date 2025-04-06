@@ -73,6 +73,11 @@ jobs:
           export FLASK_APP=app
           flask db upgrade
           nohup flask run --host=127.0.0.1 --port=5000 &
+          # Wait for Flask to be fully up and running
+          until curl --silent --fail http://127.0.0.1:5000; do
+            echo "Waiting for Flask app to be ready..."
+            sleep 1
+          done
           sleep 5
 
       - name: Run Cypress tests
