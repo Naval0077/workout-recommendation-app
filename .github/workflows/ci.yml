@@ -45,7 +45,7 @@ jobs:
 
       - name: Run unit tests
         run: |
-          pytest tests/unit
+          pytest test/unit
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
