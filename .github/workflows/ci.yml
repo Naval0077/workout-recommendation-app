@@ -52,9 +52,21 @@ jobs:
         with:
           node-version: 18
 
-      - name: Install Cypress dependencies
+      - name: Install dependencies from package.json
         run: |
-          npm install --save-dev cypress
+          npm install  # Install all dependencies listed in package.json
+
+      - name: Install Cypress binary
+        run: |
+          npx cypress install  # Install the Cypress binary
+
+      - name: Cache Cypress binary
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/Cypress
+          key: ${{ runner.os }}-cypress-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-cypress-
 
       - name: Start Flask app in background
         run: |
