@@ -70,7 +70,7 @@ jobs:
 
       - name: Start Flask app in background
         run: |
-          export FLASK_APP=app
+          export FLASK_APP=run
           flask db upgrade
           nohup flask run --host=127.0.0.1 --port=5000 &
           # Wait for Flask to be fully up and running
@@ -78,7 +78,7 @@ jobs:
             echo "Waiting for Flask app to be ready..."
             sleep 1
           done
-          sleep 5
+          sleep 10
 
       - name: Run Cypress tests
         run: |
