@@ -395,6 +395,11 @@ def customize_workout():
 @main.route('/reset_db', methods=['GET'])
 def reset_db():
     from app import db
-    db.drop_all()  # Drop all tables
-    db.create_all()  # Recreate tables
-    return 'Database reset', 200
+    try:
+        db.drop_all()  # Drop all tables
+        db.create_all()  # Recreate tables
+        app.logger.info('Database reset successfully')
+        return 'Database reset', 200
+    except Exception as e:
+        app.logger.error(f"Error resetting database: {e}")
+        return f"Error resetting database: {str(e)}", 500
