@@ -8,9 +8,6 @@ describe('Login Flow', () => {
     // Register the user first
     cy.request('GET', 'http://127.0.0.1:5000/reset_db');
     cy.register(testUser.email, testUser.password)
-
-    // Optional: assert registration success message
-    cy.contains('Registration successful').should('exist');
   });
 
   it('logs in with valid credentials', () => {

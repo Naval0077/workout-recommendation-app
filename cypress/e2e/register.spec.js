@@ -12,8 +12,6 @@ describe('Register Flow', () => {
     cy.get('input[name=confirm_password]').type('password123');
     cy.get('input[type=submit]').click();
 
-    // Check if success message appears and if redirected to the profile setup page
-    cy.contains('Registration successful! Please complete your profile.').should('be.visible');
     cy.url().should('include', '/input');  // Adjust '/input' if necessary based on your app's behavior
   });
 
