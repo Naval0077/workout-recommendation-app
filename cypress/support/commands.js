@@ -42,6 +42,7 @@ Cypress.Commands.add('register', (email, password) => {
 Cypress.Commands.add('input', () => {
   cy.visit('/input')
   cy.document().then(doc => {
+    console.log("INPUT PAGE HTML:");
     console.log(doc.documentElement.innerHTML); // Output page source to Cypress logs
   });
   cy.contains('Enter your details');
