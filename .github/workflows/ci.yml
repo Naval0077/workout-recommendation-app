@@ -27,8 +27,6 @@ jobs:
     env:
       # Ensure your Flask app config is set correctly to use the database
       FLASK_CONFIG: app.config.TestingConfig
-      # If you're using SQLite locally and for testing in CI, change this to SQLite
-      DATABASE_URL: sqlite:///test_workouts.db  # For SQLite testing
 
     steps:
       - name: Checkout code

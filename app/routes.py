@@ -396,8 +396,10 @@ def customize_workout():
 def reset_db():
     from app import db
     try:
-        db.drop_all()  # Drop all tables
+        print("== Resetting DB...")
+        db.drop_all()
         db.create_all()  # Recreate tables
+        print("== DB reset done.")
         return 'Database reset', 200
     except Exception as e:
         return f"Error resetting database: {str(e)}", 500
