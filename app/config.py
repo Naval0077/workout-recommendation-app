@@ -10,4 +10,4 @@ class TestingConfig(Config):
     TESTING = True
     WTF_CSRF_ENABLED = False  # Disable CSRF for testing (important for form posts in Cypress)
     SQLALCHEMY_DATABASE_URI = 'sqlite:///test_workouts.db'
-    DEBUG = True
+    # DEBUG = True
