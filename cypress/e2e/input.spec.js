@@ -2,7 +2,6 @@ describe('User Profile Input', () => {
   beforeEach(() => {
     // You can mock a login session here if necessary
     cy.request('GET', 'http://127.0.0.1:5000/reset_db');
-    cy.request('GET', 'http://127.0.0.1:5000/reset_db');
     cy.register('test@example.com', 'password');
     cy.login('test@example.com', 'password');  // You need to create this custom login command
   });

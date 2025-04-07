@@ -26,6 +26,7 @@
 
 Cypress.Commands.add('login', (email, password) => {
   cy.visit('/');
+  cy.contains('Email')
   cy.get('input[name="email"]').type(email);
   cy.get('input[name="password"]').type(password);
   cy.get('input[type=submit]').click();
@@ -33,6 +34,7 @@ Cypress.Commands.add('login', (email, password) => {
 
 Cypress.Commands.add('register', (email, password) => {
   cy.visit('/register');
+  cy.contains('Email')
   cy.get('input[name="email"]').type(email);
   cy.get('input[name="password"]').type(password);
   cy.get('input[name=confirm_password]').type(password);
