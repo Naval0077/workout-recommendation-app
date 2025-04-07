@@ -14,7 +14,7 @@ describe('Login Flow', () => {
     cy.visit('/');
     cy.get('input[name="email"]').type(testUser.email);
     cy.get('input[name="password"]').type(testUser.password);
-    cy.get('input[type="submit"]').click();
+    cy.get('input[name="submit"]').click();
 
     // Expect to be redirected or see a success flash message
     cy.contains('Logged in successfully!').should('exist');
