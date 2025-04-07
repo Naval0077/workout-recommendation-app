@@ -70,15 +70,16 @@ jobs:
 
       - name: Start Flask app in background
         run: |
-          export FLASK_APP=run.py  # Update this line to use your correct startup file
+          export FLASK_APP=run.py
           flask db upgrade
-          nohup python run.py
-          # Wait for Flask to be fully up and running
+          nohup python3 run.py &  # run in background
+          sleep 5
+          echo "Waiting for Flask app to be ready..."
           until curl --silent --fail http://127.0.0.1:5000; do
-            echo "Waiting for Flask app to be ready..."
+            echo "Still waiting for Flask..."
             sleep 1
           done
-          sleep 10
+          echo "Flask app is ready!"
 
       - name: Run Cypress tests
         run: |
