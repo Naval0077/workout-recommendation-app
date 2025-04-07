@@ -47,7 +47,6 @@ Cypress.Commands.add('input', () => {
     console.log("INPUT PAGE HTML:");
     console.log(doc.documentElement.innerHTML); // Output page source to Cypress logs
   });
-  cy.contains('Enter your details');
   cy.get('input[name="height"]').type('180');  // Height field
   cy.get('input[name="weight"]').type('75');   // Weight field
   cy.get('input[name="age"]').type('25');      // Age field

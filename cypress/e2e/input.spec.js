@@ -17,7 +17,7 @@ describe('User Profile Input', () => {
 
   it('should show validation errors when form is submitted with missing data', () => {
     // Submit the form with missing fields
-    cy.get('#submit').click();
+    cy.get('input[name="submit"]').click();
 
     // Check for validation error messages (these should match your form validation logic)
     cy.url().should('include', '/input');
