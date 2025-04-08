@@ -21,7 +21,7 @@ jobs:
 
     env:
       FLASK_ENV: testing
-      DATABASE_URL: sqlite:///test_workouts.db
+      DATABASE_URL: sqlite:///test.db
       CYPRESS_baseUrl: http://localhost:5000
 
     steps:
@@ -54,14 +54,28 @@ jobs:
 
       - name: Set up database and seed user
         run: |
-          python -c "from app import create_app, db; app = create_app(); app.app_context().push(); db.create_all()"
-          python -c "from app import create_app, db; from app.models import User; app = create_app(); app.app_context().push(); db.session.add(User(email='test@example.com', password='password')); db.session.commit()"
+          python -c "
+          from app import create_app, db;
+          from app.models import User;
+          app = create_app();
+          app.app_context().push();
+          # Create all tables
+          db.create_all();
+          # Check if the test user already exists, delete if so
+          existing_user = User.query.filter_by(email='test@example.com').first();
+          if existing_user:
+              db.session.delete(existing_user);
+              db.session.commit();
+          # Add the test user
+          db.session.add(User(email='test@example.com', password='password'));
+          db.session.commit();
+          "
 
       - name: Start Flask app
         run: |
           echo "Starting Flask app..."
           FLASK_APP=run.py FLASK_ENV=testing python -u -m flask run --no-reload --without-threads --host=0.0.0.0 --port=5000 &
-          sleep 5
+          sleep 10
 
       - name: Install Node.js and Cypress
         uses: actions/setup-node@v3
