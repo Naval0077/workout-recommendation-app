@@ -9,8 +9,8 @@ class Config:
 class TestingConfig(Config):
     TESTING = True
     WTF_CSRF_ENABLED = False
-    SERVER_NAME = 'localhost:5000'  # Critical for URL generation
-    APPLICATION_ROOT = '/'  # Explicit root path
-    PREFERRED_URL_SCHEME = 'http'
-    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL', 'sqlite:///test_workouts.db')
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///test_workouts.db'
+    SECRET_KEY = 'test-secret-key'
+    SERVER_NAME = 'localhost:5000'
+    SESSION_TYPE = 'filesystem'
     # DEBUG = True

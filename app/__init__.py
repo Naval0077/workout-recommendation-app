@@ -12,11 +12,13 @@ login_manager = LoginManager()
 bcrypt = Bcrypt()
 migrate = Migrate()  # Initialize Migrate here
 
-def create_app():
-    from app.config import TestingConfig
+def create_app(config_class=None):
     app = Flask(__name__)
-    config_class = os.getenv('FLASK_CONFIG', 'app.config.Config')
-    app.config.from_object(config_class)
+    if config_class:
+        app.config.from_object(config_class)
+    else:
+        config_path = os.getenv('FLASK_CONFIG', 'app.config.Config')
+        app.config.from_object(config_path)
     db.init_app(app)
     migrate.init_app(app, db)  # Pass db to migrate.init_app to associate with your database
     login_manager.init_app(app)
