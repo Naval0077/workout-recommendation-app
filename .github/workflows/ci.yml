@@ -66,7 +66,6 @@ jobs:
 
       - name: Start Flask app
         run: |
-          pip install flask-migrate
           export FLASK_CONFIG=app.config.TestingConfig
           flask db upgrade
           # Run in testing mode with explicit host
