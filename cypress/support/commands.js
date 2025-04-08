@@ -30,7 +30,7 @@ Cypress.Commands.add('login', (email, password) => {
   cy.get('input[name="email"]').type(email);
   cy.get('input[name="password"]').type(password);
   cy.get('input[type=submit]').click();
-  cy.wait(1000);
+  cy.url().should('include', '/input', { timeout: 15000 });
 });
 
 Cypress.Commands.add('register', (email, password) => {
@@ -48,8 +48,7 @@ Cypress.Commands.add('input', () => {
     console.log("INPUT PAGE HTML:");
     console.log(doc.documentElement.innerHTML); // Output page source to Cypress logs
   });
-  cy.wait(100)
-  cy.url().should('include', '/input')
+  cy.url().should('include', '/input', { timeout: 10000 });
   cy.get('input[name="height"]').type('180');  // Height field
   cy.get('input[name="weight"]').type('75');   // Weight field
   cy.get('input[name="age"]').type('25');      // Age field
@@ -60,4 +59,8 @@ Cypress.Commands.add('input', () => {
   cy.get('select[name="goal"]').select('endurance').should('have.value', 'endurance');
   cy.get('select[name="commitment"]').select('medium').should('have.value', 'medium');  // Select 'Medium' from the commitment options
   cy.get('#submit').click();
+});
+
+Cypress.Cookies.defaults({
+  preserve: 'session'
 });

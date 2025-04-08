@@ -1,8 +1,10 @@
 describe('Fitness Test', () => {
   beforeEach(() => {
-    cy.request('GET', 'http://127.0.0.1:5000/reset_db').then(() => {
+    cy.request('GET', 'http://127.0.0.1:5000/reset_db').then((response) => {
+      expect(response.status).to.eq(200);
       cy.register('test@example.com', 'password');
       cy.login('test@example.com', 'password');
+      cy.url().then(url => console.log('URL after login:', url)); // Debug URL
       cy.input();
       cy.visit('/fitness_test');
     });
