@@ -36,7 +36,7 @@ def register():
             flash('Email already registered. Please log in.', 'danger')
             return redirect(url_for('main.login'))  # Redirect to login page
         user = User(email=form.email.data)
-        user.set_password(form.password.data)
+        user.set_password(form.password.data) # fix probably
         db.session.add(user)
         db.session.commit()
         flash('Registration successful! Please complete your profile.', 'success')
