@@ -23,9 +23,10 @@
 //
 // -- This will overwrite an existing command --
 // Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
+const baseUrl = 'http://localhost:5000';
 
 Cypress.Commands.add('login', (email, password) => {
-  cy.visit('/');
+  cy.visit('${baseUrl}/');
   cy.contains('Email')
   cy.get('input[name="email"]').type(email);
   cy.get('input[name="password"]').type(password);
@@ -35,7 +36,7 @@ Cypress.Commands.add('login', (email, password) => {
 });
 
 Cypress.Commands.add('register', (email, password) => {
-  cy.visit('/register');
+  cy.visit('${baseUrl}/register');
   cy.contains('Email')
   cy.get('input[name="email"]').type(email);
   cy.get('input[name="password"]').type(password);

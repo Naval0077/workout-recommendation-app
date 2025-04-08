@@ -6,7 +6,7 @@ module.exports = defineConfig({
     setupNodeEvents(on, config) {
       // implement node event listeners here
     },
-    baseUrl: 'http://127.0.0.1:5000', // Flask app URL
+    baseUrl: 'http://localhost:5000', // Flask app URL
     supportFile: 'cypress/support/e2e.js', // Path to the support file
     specPattern: 'cypress/e2e/**/*.spec.js', // The location of your test files
   },
