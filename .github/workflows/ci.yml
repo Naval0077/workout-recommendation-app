@@ -3,29 +3,13 @@ name: Run Flask Unit & Cypress Tests
 on:
   push:
     branches:
-      - main  # Change to your branch name if different
+      - main  # or your branch name
 
 jobs:
   test:
     runs-on: ubuntu-latest
 
-    services:
-      postgres:
-        image: postgres:14
-        env:
-          POSTGRES_USER: testuser
-          POSTGRES_PASSWORD: testpass
-          POSTGRES_DB: testdb
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-
     env:
-      # Ensure your Flask app config is set correctly to use the database
       FLASK_ENV: testing
       FLASK_CONFIG: TestingConfig
       FLASK_APP: run.py
@@ -37,7 +21,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: 3.10.5
+          python-version: 3.10
 
       - name: Install Python dependencies
         run: |
@@ -45,22 +29,16 @@ jobs:
           pip install -r requirements.txt
           pip install pytest
 
-      - name: Run unit tests
-        run: |
-          pytest app/test/unit
-
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 18
 
-      - name: Install dependencies from package.json
-        run: |
-          npm install  # Install all dependencies listed in package.json
+      - name: Install frontend dependencies
+        run: npm install
 
       - name: Install Cypress binary
-        run: |
-          npx cypress install  # Install the Cypress binary
+        run: npx cypress install
 
       - name: Cache Cypress binary
         uses: actions/cache@v3
@@ -70,18 +48,20 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-cypress-
 
-      - name: Start Flask app in background
+      - name: Start Flask app
         run: |
           flask db upgrade
-          nohup python3 run.py &  # run in background
+          nohup python run.py &
+          echo "Waiting for Flask app to start..."
           sleep 5
-          echo "Waiting for Flask app to be ready..."
           until curl --silent --fail http://127.0.0.1:5000; do
             echo "Still waiting for Flask..."
             sleep 1
           done
           echo "Flask app is ready!"
 
+      - name: Run unit tests
+        run: pytest app/test/unit
+
       - name: Run Cypress tests
-        run: |
-          npx cypress run
+        run: npx cypress run
