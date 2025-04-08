@@ -62,6 +62,32 @@ jobs:
           key: ${{ runner.os }}-cypress-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-cypress-
+      - name: Set up database and seed user
+        run: |
+          python -c "
+          from app import create_app, db;
+          from app.models import User, WorkoutPreferences;
+          app = create_app();
+          app.app_context().push();
+          # Create all tables
+          db.create_all();
+          
+          # Check if the test user already exists, delete if so
+          existing_user = User.query.filter_by(email='test@example.com').first();
+          if existing_user:
+              db.session.delete(existing_user);
+              db.session.commit();
+          
+          # Add the test user
+          user = User(email='test@example.com', password='password');
+          db.session.add(user);
+          db.session.commit();
+          
+          # Create WorkoutPreferences for the new user
+          workout_preferences = WorkoutPreferences(user_id=user.id);
+          db.session.add(workout_preferences);
+          db.session.commit();
+          "
 
       - name: Start Flask app
         run: |
