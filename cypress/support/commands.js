@@ -60,7 +60,3 @@ Cypress.Commands.add('input', () => {
   cy.get('select[name="commitment"]').select('medium').should('have.value', 'medium');  // Select 'Medium' from the commitment options
   cy.get('#submit').click();
 });
-
-Cypress.Cookies.defaults({
-  preserve: 'session'
-});
