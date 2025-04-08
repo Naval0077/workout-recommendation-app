@@ -52,24 +52,24 @@ jobs:
           python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('all-MiniLM-L6-v2')"
 
 
-      - name: Set up database and seed user
-        run: |
-          python -c "
-          from app import create_app, db;
-          from app.models import User;
-          app = create_app();
-          app.app_context().push();
-          # Create all tables
-          db.create_all();
-          # Check if the test user already exists, delete if so
-          existing_user = User.query.filter_by(email='test@example.com').first();
-          if existing_user:
-              db.session.delete(existing_user);
-              db.session.commit();
-          # Add the test user
-          db.session.add(User(email='test@example.com', password='password'));
-          db.session.commit();
-          "
+#      - name: Set up database and seed user
+#        run: |
+#          python -c "
+#          from app import create_app, db;
+#          from app.models import User;
+#          app = create_app();
+#          app.app_context().push();
+#          # Create all tables
+#          db.create_all();
+#          # Check if the test user already exists, delete if so
+#          existing_user = User.query.filter_by(email='test@example.com').first();
+#          if existing_user:
+#              db.session.delete(existing_user);
+#              db.session.commit();
+#          # Add the test user
+#          db.session.add(User(email='test@example.com', password='password'));
+#          db.session.commit();
+#          "
 
       - name: Start Flask app
         run: |
