@@ -11,11 +11,20 @@ class User(db.Model, UserMixin):
     password_hash = db.Column(db.String(128), nullable=False)
     is_admin = db.Column(db.Boolean, default=False)  # Add this field
     ratings = db.relationship('Rating', back_populates='user', lazy=True)
-    def set_password(self, password):
-        self.password_hash = bcrypt.generate_password_hash(password).decode('utf-8')
+
+    @property
+    def password(self):
+        raise AttributeError('Password is write-only.')
+
+    @password.setter
+    def password(self, password):
+        self.set_password(password)
 
     def check_password(self, password):
         return bcrypt.check_password_hash(self.password_hash, password)
+
+    def set_password(self, password):
+        self.password_hash = bcrypt.generate_password_hash(password).decode('utf-8')
 
 class UserProfile(db.Model):
     id = db.Column(db.Integer, primary_key=True)
