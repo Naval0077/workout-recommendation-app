@@ -30,8 +30,7 @@ Cypress.Commands.add('login', (email, password) => {
   cy.get('input[name="email"]').type(email);
   cy.get('input[name="password"]').type(password);
   cy.get('input[type=submit]').click();
-  cy.wait(100);
-  cy.visit('/input')
+  cy.wait(1000);
 });
 
 Cypress.Commands.add('register', (email, password) => {
@@ -45,7 +44,6 @@ Cypress.Commands.add('register', (email, password) => {
 });
 
 Cypress.Commands.add('input', () => {
-  cy.visit('/input')
   cy.document().then(doc => {
     console.log("INPUT PAGE HTML:");
     console.log(doc.documentElement.innerHTML); // Output page source to Cypress logs

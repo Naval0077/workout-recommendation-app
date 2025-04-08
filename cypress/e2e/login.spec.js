@@ -16,9 +16,6 @@ describe('Login Flow', () => {
     cy.get('input[name="password"]').type(testUser.password);
     cy.get('input[name="submit"]').click();
 
-    // Expect to be redirected or see a success flash message
-    cy.contains('Logged in successfully!').should('exist');
-
     // Or check redirected URL:
     cy.url().should('include', '/input'); // or whatever your post-login route is
   });

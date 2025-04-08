@@ -27,6 +27,7 @@ jobs:
     env:
       # Ensure your Flask app config is set correctly to use the database
       FLASK_ENV: testing
+      FLASK_CONFIG: TestingConfig
       FLASK_APP: run.py
 
     steps:
