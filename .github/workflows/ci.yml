@@ -21,7 +21,7 @@ jobs:
 
     env:
       FLASK_ENV: testing
-      FLASK_CONFIG: TestingConfig
+      FLASK_CONFIG: app.config.TestingConfig
       FLASK_APP: run.py
       DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test_db
 
@@ -66,8 +66,8 @@ jobs:
 
       - name: Start Flask app
         run: |
-          # Clear any existing sessions
-          rm -f instance/flask_session/*
+          pip install flask-migrate
+          export FLASK_CONFIG=app.config.TestingConfig
           flask db upgrade
           # Run in testing mode with explicit host
           nohup flask run --host=0.0.0.0 --port=5000 &
