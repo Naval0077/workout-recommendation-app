@@ -3,16 +3,27 @@ name: Run Flask Unit & Cypress Tests
 on:
   push:
     branches:
-      - main  # or your branch name
+      - main
 
 jobs:
   test:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:14
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: test_db
+        ports:
+          - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
 
     env:
       FLASK_ENV: testing
       FLASK_CONFIG: TestingConfig
       FLASK_APP: run.py
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test_db
 
     steps:
       - name: Checkout code
@@ -23,11 +34,16 @@ jobs:
         with:
           python-version: 3.10.5
 
+      - name: Install PostgreSQL dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libpq-dev postgresql-client
+
       - name: Install Python dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-          pip install pytest
+          pip install pytest psycopg2-binary
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
@@ -59,6 +75,10 @@ jobs:
             sleep 1
           done
           echo "Flask app is ready!"
+
+      - name: Verify PostgreSQL connection
+        run: |
+          psql $DATABASE_URL -c "SELECT 1"
 
       - name: Run unit tests
         run: pytest app/test/unit
