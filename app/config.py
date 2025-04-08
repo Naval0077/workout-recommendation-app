@@ -12,4 +12,6 @@ class TestingConfig(Config):
     SQLALCHEMY_DATABASE_URI = 'sqlite:///test_workouts.db'
     SECRET_KEY = 'test-secret-key'
     SERVER_NAME = 'localhost:5000'
+    SESSION_COOKIE_SAMESITE = 'Lax'
+    SESSION_COOKIE_SECURE = False
     # DEBUG = True

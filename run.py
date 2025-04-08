@@ -6,6 +6,8 @@ from app.config import TestingConfig
 env = os.getenv("FLASK_ENV")
 
 if env == "testing":
+    import logging
+    logging.basicConfig(level=logging.DEBUG)
     app = create_app(TestingConfig)
 else:
     app = create_app()

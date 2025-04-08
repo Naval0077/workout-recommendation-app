@@ -31,7 +31,10 @@ Cypress.Commands.add('login', (email, password) => {
   cy.get('input[name="email"]').type(email);
   cy.get('input[name="password"]').type(password);
   cy.get('input[type=submit]').click();
-  cy.wait(5000)
+  cy.wait(3000)
+  cy.url().then((url) => {
+    console.log('CI DEBUG URL:', url);
+  });
   cy.url().should('include', '/input');
 });
 
@@ -43,6 +46,9 @@ Cypress.Commands.add('register', (email, password) => {
   cy.get('input[name=confirm_password]').type(password);
   cy.get('input[type=submit]').click();
   cy.wait(3000);
+  cy.url().then((url) => {
+    console.log('CI DEBUG URL:', url);
+  });
 });
 
 Cypress.Commands.add('input', () => {
