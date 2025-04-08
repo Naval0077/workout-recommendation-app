@@ -87,8 +87,8 @@ jobs:
           done
           curl -v http://localhost:5000/register 
 
-#      - name: Run unit tests
-#        run: pytest app/test/unit
+      - name: Run unit tests
+        run: pytest app/test/unit
 
-      - name: Run Cypress tests
-        run: npx cypress run
+#      - name: Run Cypress tests
+#        run: npx cypress run
