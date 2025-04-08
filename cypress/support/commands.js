@@ -25,23 +25,27 @@
 // Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
 
 Cypress.Commands.add('login', (email, password) => {
-  cy.visit('/');
-  cy.contains('Email')
-  cy.get('input[name="email"]').type(email);
-  cy.get('input[name="password"]').type(password);
-  cy.get('input[type=submit]').click();
-  cy.wait(15000)
-  cy.url().should('include', '/input', { timeout: 15000 });
+  cy.session([email, password], () => {
+    cy.visit('/');
+    cy.contains('Email')
+    cy.get('input[name="email"]').type(email);
+    cy.get('input[name="password"]').type(password);
+    cy.get('input[type=submit]').click();
+    cy.wait(10000)
+    cy.url().should('include', '/input', { timeout: 15000 });
+  });
 });
 
 Cypress.Commands.add('register', (email, password) => {
-  cy.visit('/register');
-  cy.contains('Email')
-  cy.get('input[name="email"]').type(email);
-  cy.get('input[name="password"]').type(password);
-  cy.get('input[name=confirm_password]').type(password);
-  cy.get('input[type=submit]').click();
-  cy.wait(100);
+  cy.session([email, password], () => {
+    cy.visit('/register');
+    cy.contains('Email')
+    cy.get('input[name="email"]').type(email);
+    cy.get('input[name="password"]').type(password);
+    cy.get('input[name=confirm_password]').type(password);
+    cy.get('input[type=submit]').click();
+    cy.wait(100);
+  });
 });
 
 Cypress.Commands.add('input', () => {
