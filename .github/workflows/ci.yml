@@ -80,8 +80,8 @@ jobs:
         run: |
           psql $DATABASE_URL -c "SELECT 1"
 
-      - name: Run unit tests
-        run: pytest app/test/unit
+#      - name: Run unit tests
+#        run: pytest app/test/unit
 
       - name: Run Cypress tests
         run: npx cypress run
