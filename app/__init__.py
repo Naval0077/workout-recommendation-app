@@ -16,7 +16,7 @@ def create_app():
     from app.config import TestingConfig
     app = Flask(__name__)
     config_class = os.getenv('FLASK_CONFIG', 'app.config.Config')
-    app.config.from_object(TestingConfig)
+    app.config.from_object(config_class)
     db.init_app(app)
     migrate.init_app(app, db)  # Pass db to migrate.init_app to associate with your database
     login_manager.init_app(app)
