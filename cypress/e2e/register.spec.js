@@ -2,7 +2,7 @@ describe('Register Flow', () => {
   // Before each test, ensure the database is clean by calling the reset DB route
   before(() => {
     // You may need to call your Flask route to reset the database before tests
-    cy.request('GET', 'http://127.0.0.1:5000/reset_db'); // Ensure this route is implemented
+    cy.request('GET', 'http://localhost:5000/reset_db'); // Ensure this route is implemented
   });
 
   it('should successfully register a new user with matching passwords', () => {

@@ -6,7 +6,7 @@ describe('Login Flow', () => {
 
   before(() => {
     // Register the user first
-    cy.request('GET', 'http://127.0.0.1:5000/reset_db');
+    cy.request('GET', 'http://localhost:5000/reset_db');
     cy.register(testUser.email, testUser.password)
   });
 

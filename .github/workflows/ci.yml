@@ -66,15 +66,17 @@ jobs:
 
       - name: Start Flask app
         run: |
+          # Clear any existing sessions
+          rm -f instance/flask_session/*
           flask db upgrade
-          nohup python run.py &
-          echo "Waiting for Flask app to start..."
-          sleep 5
-          until curl --silent --fail http://127.0.0.1:5000; do
-            echo "Still waiting for Flask..."
-            sleep 1
+          # Run in testing mode with explicit host
+          nohup flask run --host=0.0.0.0 --port=5000 &
+          echo "Waiting for Flask..."
+          sleep 10
+          until curl --silent --fail http://localhost:5000; do
+            echo "Waiting..."
+            sleep 2
           done
-          echo "Flask app is ready!"
 
       - name: Verify PostgreSQL connection
         run: |

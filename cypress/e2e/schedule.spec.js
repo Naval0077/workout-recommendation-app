@@ -1,6 +1,6 @@
 describe('Workout Schedule', () => {
   beforeEach(() => {
-    cy.request('GET', 'http://127.0.0.1:5000/reset_db');
+    cy.request('GET', 'http://localhost:5000/reset_db');
     cy.register('test@example.com', 'password');
     cy.login('test@example.com', 'password');  // Custom login command
     cy.input();

@@ -399,6 +399,8 @@ def reset_db():
         print("Resetting DB...")
         db.drop_all()
         db.create_all()  # Recreate tables
+        db.session.commit()
+        db.session.close()
         print("DB reset done.")
         return 'Database reset', 200
     except Exception as e:
