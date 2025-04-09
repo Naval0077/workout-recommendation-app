@@ -1,19 +1,4 @@
-import json
-import math
-import random
 
-import joblib
-import pandas as pd
-from sklearn.tree import DecisionTreeClassifier
-
-from app.models import User
-from app import db
-
-import json
-
-# Load exercise priors from a JSON file
-import numpy as np
-from scipy.stats import norm
 
 from app.utils.NLP import get_recommendations
 
