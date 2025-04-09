@@ -46,7 +46,6 @@ jobs:
           app-name: 'workout-recommendation-app'  # ⚠️ Replace with your Azure App Service name
           publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
           package: .
-          runtime-stack: 'PYTHON|${{ env.PYTHON_VERSION }}'
           startup-command: 'gunicorn --bind=0.0.0.0:80 --timeout 1200 --workers 2 run:app'
 
       - name: Verify deployment
