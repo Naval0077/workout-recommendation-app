@@ -34,12 +34,9 @@ jobs:
 
       - name: Install Python dependencies (staged)
         run: |
-          python -m pip install --upgrade pip
-          # Install core requirements first
-          pip install -r requirements-core.txt
-          # Then install ML packages
-          pip install -r requirements-ml.txt
-          # Verify installation
+          # Only install core dependencies in CI
+          pip install --no-cache-dir -r requirements-core.txt
+          # Skip ML deps here - they'll install during Azure startup
           pip list
 
       - name: Login to Azure
