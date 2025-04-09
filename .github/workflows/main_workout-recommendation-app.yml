@@ -10,6 +10,7 @@ env:
   PYTHON_VERSION: '3.10'
   APP_NAME: 'workout-recommendation-app'
   RESOURCE_GROUP: 'workout-recommendation'  # Replace with your actual RG
+  FLASK_ENV: 'production'  # Set the environment to production
 
 jobs:
   build-and-deploy:
@@ -39,19 +40,11 @@ jobs:
           # Skip ML deps here - they'll install during Azure startup
           pip list
 
-      - name: Login to Azure
-        uses: azure/login@v2
-        with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_98C86DB1C116409AB9C21A085FFA46A9 }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_176FE20F5C804029B572723A8A23DFCD }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_6ECF10F0CB3E44E1A98FE16356C2CE98 }}
-
       - name: Deploy to Azure Web App
-        uses: azure/webapps-deploy@v3
-        id: deploy-to-webapp
+        uses: azure/webapps-deploy@v2
         with:
-          app-name: ${{ env.APP_NAME }}
-          slot-name: 'Production'
+          app-name: 'workout-recommendation-app'  # ⚠️ Replace with your Azure App Service name
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
           package: .
           runtime-stack: 'PYTHON|${{ env.PYTHON_VERSION }}'
           startup-command: 'gunicorn --bind=0.0.0.0:80 --timeout 1200 --workers 2 run:app'
