@@ -1,0 +1,51 @@
+# Core Scientific Computing
+numpy==1.26.4
+scipy==1.15.2
+pandas==2.0.3
+scikit-learn==1.3.2
+threadpoolctl==3.5.0
+joblib==1.3.2
+
+# PyTorch Ecosystem
+torch==2.6.0
+transformers==4.50.3
+tokenizers==0.21.1
+sentencepiece==0.2.0
+safetensors==0.5.3
+huggingface-hub==0.30.1
+
+# JAX (optional - remove if unused)
+jax==0.5.3
+jaxlib==0.5.3
+ml_dtypes==0.5.1
+opt_einsum==3.4.0
+
+# Computer Vision
+opencv-contrib-python==4.11.0.86
+pillow==11.1.0
+matplotlib==3.10.1
+contourpy==1.3.1
+cycler==0.12.1
+fonttools==4.56.0
+kiwisolver==1.4.8
+pyparsing==3.2.1
+
+# MediaPipe & Audio
+mediapipe==0.10.21
+sounddevice==0.5.1
+
+# Additional Math
+sympy==1.13.1
+mpmath==1.3.0
+networkx==3.4.2
+
+# FAISS for Similarity Search
+faiss-cpu==1.10.0
+
+# Other
+sentence-transformers==4.0.1
+fsspec==2025.3.2
+regex==2024.11.6
+PyYAML==6.0.2
+flatbuffers==25.2.10
+protobuf==4.25.6
