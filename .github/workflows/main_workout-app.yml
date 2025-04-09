@@ -32,7 +32,7 @@ jobs:
       - name: Install system dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y libgl1 libglib2.0-0 ffmpeg
+          sudo apt-get install -y libgl1 libglib2.0-0 ffmpeg libsm6 libxext6
       
       - name: Install dependencies
         run: pip install -r requirements.txt
@@ -89,5 +89,5 @@ jobs:
           az webapp config set \
             --name workout-app \
             --resource-group workout-recommendation \
-            --startup-file "gunicorn run:app --bind=0.0.0.0"
+            --startup-file "startup.sh"
           
