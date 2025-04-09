@@ -78,4 +78,11 @@ jobs:
         with:
           app-name: 'workout-app'
           slot-name: 'Production'
+
+      - name: Set startup command
+        run: |
+          az webapp config set \
+            --name workout-app \
+            --resource-group workout-recommendation \
+            --startup-file "python run.py"
           
