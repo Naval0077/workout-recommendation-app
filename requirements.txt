@@ -43,7 +43,7 @@ ml_dtypes==0.5.1
 mpmath==1.3.0
 networkx==3.4.2
 numpy==1.26.4
-opencv-contrib-python==4.11.0.86
+opencv-contrib-python-headless==4.11.0.86
 opt_einsum==3.4.0
 packaging==24.2
 pandas==2.0.3
