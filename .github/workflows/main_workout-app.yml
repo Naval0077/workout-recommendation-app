@@ -84,5 +84,5 @@ jobs:
           az webapp config set \
             --name workout-app \
             --resource-group workout-recommendation \
-            --startup-file "python run.py"
+            --startup-file "gunicorn run:app --bind=0.0.0.0"
           
