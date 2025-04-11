@@ -1,8 +1,8 @@
+import time
+
 import cv2
 import mediapipe as mp
 import numpy as np
-from flask import Response
-import time
 
 # Initialize Mediapipe pose model
 mp_pose = mp.solutions.pose

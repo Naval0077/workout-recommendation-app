@@ -394,11 +394,7 @@ def customize_workout():
 
 @main.route('/reset_db', methods=['GET'])
 def reset_db():
-    import subprocess
-    try:
-        print("Resetting database with Alembic migrations...")
-        subprocess.run(["flask", "db", "downgrade", "base"], check=True)
-        subprocess.run(["flask", "db", "upgrade"], check=True)
+        db.drop_all()
+        db.create_all()
         return "Database reset with migrations", 200
-    except subprocess.CalledProcessError as e:
-        return f"Migration error: {e}", 500
+
