@@ -11,7 +11,9 @@ from app.utils.workout_utils import (build_workout_schedule, classify_fitness_le
 from app import db
 from app.pushups import generate_frames, get_pushup_count
 import os
-
+from werkzeug.utils import secure_filename
+from flask import request, jsonify
+import tempfile
 
 base_path = os.path.abspath(os.path.join(os.path.dirname(__file__), 'data'))
 file_path = os.path.join(base_path, 'workouts.json')
@@ -283,6 +285,97 @@ def save_pushups():
     db.session.commit()
     db.session.flush()  # Force immediate database sync
     return jsonify({"message": "Push-ups saved!", "count": count})
+
+
+UPLOAD_FOLDER = 'uploads'
+ALLOWED_EXTENSIONS = {'mp4', 'avi', 'mov', 'mkv'}
+
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
+@main.route("/upload_pushup_video", methods=["POST"])
+@login_required
+def upload_pushup_video():
+    if 'file' not in request.files:
+        return jsonify({"error": "No file part"}), 400
+
+    file = request.files['file']
+    if file.filename == '':
+        return jsonify({"error": "No selected file"}), 400
+
+    if file and allowed_file(file.filename):
+        # Create secure temp file with known extension
+        temp_file = tempfile.NamedTemporaryFile(suffix='.mp4', delete=False)
+        file.save(temp_file.name)
+        temp_file.close()
+
+        # Return just the filename (not full path)
+        return jsonify({
+            "message": "File uploaded successfully",
+            "filename": os.path.basename(temp_file.name)
+        })
+    else:
+        return jsonify({"error": "File type not allowed"}), 400
+
+@main.route("/upload_squat_video", methods=["POST"])
+@login_required
+def upload_squat_video():
+    if 'file' not in request.files:
+        return jsonify({"error": "No file part"}), 400
+
+    file = request.files['file']
+    if file.filename == '':
+        return jsonify({"error": "No selected file"}), 400
+
+    if file and allowed_file(file.filename):
+        temp_file = tempfile.NamedTemporaryFile(suffix='.mp4', delete=False)
+        file.save(temp_file.name)
+        temp_file.close()
+
+        return jsonify({
+            "message": "File uploaded successfully",
+            "filename": os.path.basename(temp_file.name)
+        })
+    else:
+        return jsonify({"error": "File type not allowed"}), 400
+
+@main.route("/process_uploaded_squats/<filename>")
+@login_required
+def process_uploaded_squats(filename):
+    if not filename.endswith('.mp4'):
+        return "Invalid file type", 400
+
+    video_path = os.path.join(tempfile.gettempdir(), filename)
+
+    if not os.path.exists(video_path):
+        return "Video file not found", 404
+
+    return Response(
+        generate_squats_frames(source_type='video', video_path=video_path),
+        mimetype='multipart/x-mixed-replace; boundary=frame'
+    )
+
+
+@main.route("/process_uploaded_pushups/<filename>")
+@login_required
+def process_uploaded_pushups(filename):
+    # Security check
+    if not filename.endswith('.mp4'):
+        return "Invalid file type", 400
+
+    # Reconstruct temp file path
+    temp_dir = tempfile.gettempdir()
+    video_path = os.path.join(temp_dir, filename)
+
+    if not os.path.exists(video_path):
+        return "Video file not found", 404
+
+    return Response(
+        generate_frames(source_type='video', video_path=video_path),
+        mimetype='multipart/x-mixed-replace; boundary=frame'
+    )
 
 
 @main.route("/pushup_test")

@@ -3,6 +3,7 @@ import time
 import cv2
 import mediapipe as mp
 import numpy as np
+import os
 
 # Initialize Mediapipe pose model
 mp_pose = mp.solutions.pose
@@ -33,105 +34,118 @@ MIN_HIP_ANGLE = 150  # Minimum hip angle for a straight body
 MIN_ELBOW_ANGLE = 90  # Minimum elbow angle in the downward phase
 MAX_ELBOW_ANGLE = 160  # Maximum elbow angle in the upward phase
 
-def generate_frames():
+def process_frame(frame, counter, down_position, start_time):
+    # Flip and process the frame
+    frame = cv2.flip(frame, 1)
+    image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+    image.flags.writeable = False
+    results = pose.process(image)
+    image.flags.writeable = True
+    image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+
+    if results.pose_landmarks:
+        # Extract landmarks
+        landmarks = results.pose_landmarks.landmark
+
+        # Get coordinates for relevant points
+        shoulder = [landmarks[mp_pose.PoseLandmark.LEFT_SHOULDER.value].x,
+                    landmarks[mp_pose.PoseLandmark.LEFT_SHOULDER.value].y]
+        hip = [landmarks[mp_pose.PoseLandmark.LEFT_HIP.value].x,
+               landmarks[mp_pose.PoseLandmark.LEFT_HIP.value].y]
+        knee = [landmarks[mp_pose.PoseLandmark.LEFT_KNEE.value].x,
+                landmarks[mp_pose.PoseLandmark.LEFT_KNEE.value].y]
+        elbow = [landmarks[mp_pose.PoseLandmark.LEFT_ELBOW.value].x,
+                 landmarks[mp_pose.PoseLandmark.LEFT_ELBOW.value].y]
+        wrist = [landmarks[mp_pose.PoseLandmark.LEFT_WRIST.value].x,
+                 landmarks[mp_pose.PoseLandmark.LEFT_WRIST.value].y]
+        ankle = [landmarks[mp_pose.PoseLandmark.LEFT_ANKLE.value].x,
+                 landmarks[mp_pose.PoseLandmark.LEFT_ANKLE.value].y]
+        left_wrist = landmarks[mp_pose.PoseLandmark.LEFT_WRIST.value].y
+        left_ankle = landmarks[mp_pose.PoseLandmark.LEFT_ANKLE.value].y
+
+        # Calculate angles
+        hip_angle = calculate_angle(shoulder, hip, knee)
+        elbow_angle = calculate_angle(shoulder, elbow, wrist)
+
+        # Check if wrist is close to the ground
+        GROUND_THRESHOLD = 1  # Adjust based on camera angle and resolution
+
+        # Check if wrists are near the ground
+        if abs(left_wrist - left_ankle) < GROUND_THRESHOLD:
+            wrists_on_ground = True
+        else:
+            wrists_on_ground = False
+
+        # Check if in push-up position (hip angle and wrist ground proximity)
+        if hip_angle > MIN_HIP_ANGLE and wrists_on_ground:
+            # Downward motion detected
+            if elbow_angle < MIN_ELBOW_ANGLE:
+                down_position = True
+
+            # Upward motion detected
+            if down_position and elbow_angle > MAX_ELBOW_ANGLE:
+                counter += 1
+                down_position = False
+
+        # Display landmarks
+        mp_drawing.draw_landmarks(image, results.pose_landmarks, mp_pose.POSE_CONNECTIONS)
+
+        # Display angles and counter
+        cv2.putText(image, f'Hip Angle: {int(hip_angle)}', (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2)
+        cv2.putText(image, f'Elbow Angle: {int(elbow_angle)}', (50, 100), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+        cv2.putText(image, f'Push-ups: {counter}', (50, 150), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
+        if start_time:
+            cv2.putText(image, f'Time: {time.time() - start_time}', (50, 200), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
+
+    return image, counter, down_position
+
+
+def generate_frames(source_type='webcam', video_path=None):
     global counter, down_position, start_time
 
-    cap = cv2.VideoCapture(0)  # Open webcam
-    start_time = time.time()  # Start the test timer
-    counter = 0  # Reset push-up counter
+    cap = None
+    try:
+        if source_type == 'webcam':
+            cap = cv2.VideoCapture(0)
+        else:
+            if not os.path.exists(video_path):
+                raise FileNotFoundError(f"Video file missing: {video_path}")
 
-    while cap.isOpened():
-        ret, frame = cap.read()
-        if not ret:
-            break
+            cap = cv2.VideoCapture(video_path)
+            if not cap.isOpened():
+                raise RuntimeError(f"Could not open video: {video_path}")
 
-        # Flip and process the frame
-        frame = cv2.flip(frame, 1)
-        image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        image.flags.writeable = False
-        results = pose.process(image)
-        image.flags.writeable = True
-        image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+        start_time = time.time()
+        counter = 0
+        down_position = False
 
-        if results.pose_landmarks:
-            # Extract landmarks
-            landmarks = results.pose_landmarks.landmark
+        while True:
+            ret, frame = cap.read()
+            if not ret:
+                break
 
-            # Get coordinates for relevant points
-            shoulder = [landmarks[mp_pose.PoseLandmark.LEFT_SHOULDER.value].x,
-                        landmarks[mp_pose.PoseLandmark.LEFT_SHOULDER.value].y]
-            hip = [landmarks[mp_pose.PoseLandmark.LEFT_HIP.value].x,
-                   landmarks[mp_pose.PoseLandmark.LEFT_HIP.value].y]
-            knee = [landmarks[mp_pose.PoseLandmark.LEFT_KNEE.value].x,
-                    landmarks[mp_pose.PoseLandmark.LEFT_KNEE.value].y]
-            elbow = [landmarks[mp_pose.PoseLandmark.LEFT_ELBOW.value].x,
-                     landmarks[mp_pose.PoseLandmark.LEFT_ELBOW.value].y]
-            wrist = [landmarks[mp_pose.PoseLandmark.LEFT_WRIST.value].x,
-                     landmarks[mp_pose.PoseLandmark.LEFT_WRIST.value].y]
-            ankle = [landmarks[mp_pose.PoseLandmark.LEFT_ANKLE.value].x,
-                     landmarks[mp_pose.PoseLandmark.LEFT_ANKLE.value].y]
-            left_wrist = landmarks[mp_pose.PoseLandmark.LEFT_WRIST.value].y
-            left_ankle = landmarks[mp_pose.PoseLandmark.LEFT_ANKLE.value].y
+            # Your existing processing logic
+            processed_frame, counter, down_position = process_frame(frame, counter, down_position, start_time)
 
-            # Calculate angles
-            hip_angle = calculate_angle(shoulder, hip, knee)
-            elbow_angle = calculate_angle(shoulder, elbow, wrist)
+            _, buffer = cv2.imencode('.jpg', processed_frame)
+            frame_bytes = buffer.tobytes()
 
-            # Get shoulder and wrist heights
-            shoulder_height = landmarks[mp_pose.PoseLandmark.LEFT_SHOULDER.value].y
-            wrist_height = landmarks[mp_pose.PoseLandmark.LEFT_WRIST.value].y
+            yield (b'--frame\r\n'
+                   b'Content-Type: image/jpeg\r\n\r\n' + frame_bytes + b'\r\n')
 
-            # Initial shoulder height for thresholding
-
-            # Check if wrist is close to the ground
-            GROUND_THRESHOLD = 1  # Adjust based on camera angle and resolution
-
-            # Check if wrists are near the ground
-            if (
-                    abs(left_wrist - left_ankle) < GROUND_THRESHOLD
-            ):
-                wrists_on_ground = True
-            else:
-                wrists_on_ground = False
-
-            # Check if in push-up position (hip angle and wrist ground proximity)
-            if hip_angle > MIN_HIP_ANGLE and wrists_on_ground:
-                # Downward motion detected
-                if elbow_angle < MIN_ELBOW_ANGLE:
-                    down_position = True
-
-                # Upward motion detected
-                if down_position and elbow_angle > MAX_ELBOW_ANGLE:
-                    counter += 1
-                    down_position = False
-
-            # Display landmarks
-            mp_drawing.draw_landmarks(image, results.pose_landmarks, mp_pose.POSE_CONNECTIONS)
-
-            # Display angles and counter
-            cv2.putText(image, f'Hip Angle: {int(hip_angle)}', (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2)
-            cv2.putText(image, f'Elbow Angle: {int(elbow_angle)}', (50, 100), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0),
-                        2)
-            cv2.putText(image, f'Push-ups: {counter}', (50, 150), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
-            cv2.putText(image, f'Time: {time.time() - start_time}', (50, 200), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255),
-                        2)
-
-        # Show the frame
-        # Encode the frame for Flask streaming
-        _, buffer = cv2.imencode('.jpg', image)
-        frame = buffer.tobytes()
-
+    except Exception as e:
+        print(f"Error in video processing: {str(e)}")
+        # Generate error frame
+        error_frame = np.zeros((480, 640, 3), dtype=np.uint8)
+        cv2.putText(error_frame, f"Error: {str(e)}", (50, 240),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
+        _, buffer = cv2.imencode('.jpg', error_frame)
         yield (b'--frame\r\n'
-               b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
-
-        elapsed_time = time.time() - start_time
-        if elapsed_time > max_duration:
-            break
-        if cv2.waitKey(10) & 0xFF == ord('q'):
-            break
-
-    cap.release()
-
+               b'Content-Type: image/jpeg\r\n\r\n' + buffer.tobytes() + b'\r\n')
+    finally:
+        if cap and cap.isOpened():
+            cap.release()
+        # Temp file cleanup happens automatically since we used delete=False
 
 # Function to get final push-up count
 def get_pushup_count():

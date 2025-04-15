@@ -40,12 +40,18 @@
         <span class="close">&times;</span>
         <h2>Push-Up Test</h2>
         <p>Perform as many push-ups as possible in 60 seconds.</p>
-
+        <!-- Upload option -->
+        <div style="margin-bottom: 20px;">
+            <input type="file" id="pushupVideoUpload" accept="video/*">
+            <button id="uploadPushupVideo">Upload Video</button>
+        </div>
         <!-- Live Push-Up Feed -->
         <div>
             <img id="pushupFeed" width="640" height="480">
         </div>
+        <div>
         <button id="startpushTest">Start Test</button>
+        </div>
     </div>
 </div>
 <!-- Squat Modal -->
@@ -54,81 +60,195 @@
         <span class="close">&times;</span>
         <h2>Squat Test</h2>
         <p>Perform as many squats as possible in 60 seconds.</p>
+        <!-- Squat Video Upload -->
+        <div style="margin-bottom: 20px;">
+            <input type="file" id="squatVideoUpload" accept="video/*">
+            <button id="uploadSquatVideo">Upload Video</button>
+        </div>
+        <div>
         <img id="squatFeed" width="640" height="480">
+        </div>
+        <div>
         <button id="startSquatCounter">Start Test</button>
+        </div>
     </div>
 </div>
 
 <script>
-    document.addEventListener("DOMContentLoaded", function () {
-        let modal = document.getElementById("pushupModal");
-        let squatModal = document.getElementById("squatModal");
+document.addEventListener("DOMContentLoaded", function () {
+    const modal = document.getElementById("pushupModal");
+    const squatModal = document.getElementById("squatModal");
+    const pushupFeed = document.getElementById("pushupFeed");
+    const squatFeed = document.getElementById("squatFeed");
+    const TEST_DURATION = 60;
 
-        let startPushupTest = document.getElementById("startpushTest");
-        let startSquatTest = document.getElementById("startSquatTest");
+    let pushupTestTimer, squatTestTimer;
+    let pushupTestStartTime, squatTestStartTime;
 
-        let pushupCountField = document.getElementById("pushup_count");
-        let livePushupCount = document.getElementById("livePushupCount");
-        let closeModal = document.getElementsByClassName("close")[0];
+    function createTimerDisplay() {
+        if (!document.getElementById("timer")) {
+            const timerDiv = document.createElement("div");
+            timerDiv.id = "timer";
+            timerDiv.style = "font-size: 24px; color: red; margin: 10px 0;";
+            modal.querySelector('.modal-content').appendChild(timerDiv);
+        }
+    }
 
-        let pushupFeed = document.getElementById("pushupFeed");
-        let squatFeed = document.getElementById("squatFeed");
+    function updateTimerDisplay(secondsElapsed) {
+        const timerElement = document.getElementById("timer");
+        if (timerElement) {
+            const remaining = TEST_DURATION - secondsElapsed;
+            timerElement.textContent = remaining > 0
+                ? `Time remaining: ${remaining}s`
+                : "Time's up!";
+        }
+    }
 
-        document.getElementById("startPushupTest").onclick = function () {
-            modal.style.display = "block";
-        };
+    async function endPushupTest() {
+        clearInterval(pushupTestTimer);
+        const saveResponse = await fetch("{{ url_for('main.save_pushups') }}", {
+            method: "POST"
+        });
 
-        startSquatTest.onclick = function () {
-                squatModal.style.display = "block";
+        if (saveResponse.ok) {
+            const result = await saveResponse.json();
+            document.getElementById("pushups").value = result.count;
+            alert(`Push-up test complete! Count: ${result.count}`);
+        } else {
+            console.error("Failed to save push-ups");
+        }
+
+        pushupFeed.src = "";
+        modal.style.display = "none";
+    }
+
+    async function endSquatTest() {
+        clearInterval(squatTestTimer);
+        const response = await fetch("{{ url_for('main.save_squats') }}", {
+            method: "POST"
+        });
+        if (response.ok) {
+            const result = await response.json();
+            document.getElementById("squats").value = result.count;
+            squatModal.style.display = "none";
+            squatFeed.src = "";
+            alert("Squats recorded: " + result.count);
+        } else {
+            console.error("Failed to save squats");
+        }
+    }
+
+    document.getElementById("startpushTest").onclick = function () {
+        createTimerDisplay();
+        pushupFeed.src = "{{ url_for('main.pushup_feed') }}";
+        pushupTestStartTime = Date.now();
+
+        clearInterval(pushupTestTimer);
+        pushupTestTimer = setInterval(() => {
+            const secondsElapsed = Math.floor((Date.now() - pushupTestStartTime) / 1000);
+            updateTimerDisplay(secondsElapsed);
+
+            if (secondsElapsed >= TEST_DURATION) {
+                endPushupTest();
+            }
+        }, 500);
+    };
+
+    document.getElementById("startSquatCounter").onclick = function () {
+        squatFeed.src = "{{ url_for('main.squats_feed') }}";
+        squatTestStartTime = Date.now();
+
+        clearInterval(squatTestTimer);
+        squatTestTimer = setInterval(() => {
+            const secondsElapsed = Math.floor((Date.now() - squatTestStartTime) / 1000);
+            if (secondsElapsed >= TEST_DURATION) {
+                endSquatTest();
+            }
+        }, 500);
+    };
+
+    document.getElementById("uploadSquatVideo").onclick = async function () {
+        const fileInput = document.getElementById("squatVideoUpload");
+        if (!fileInput.files.length) {
+            alert("Please select a video file first");
+            return;
+        }
+
+        createTimerDisplay();
+        const uploadBtn = this;
+        uploadBtn.disabled = true;
+        uploadBtn.textContent = "Processing...";
+
+        try {
+            squatTestStartTime = Date.now();
+            clearInterval(squatTestTimer);
+            squatTestTimer = setInterval(() => {
+                const secondsElapsed = Math.floor((Date.now() - squatTestStartTime) / 1000);
+                updateTimerDisplay(secondsElapsed);
+                if (secondsElapsed >= TEST_DURATION) {
+                    endSquatTest();
+                }
+            }, 500);
+
+            const formData = new FormData();
+            formData.append("file", fileInput.files[0]);
+
+            const response = await fetch("{{ url_for('main.upload_squat_video') }}", {
+                method: "POST",
+                body: formData
+            });
+
+            if (!response.ok) throw new Error("Upload failed");
+            const data = await response.json();
+            squatFeed.src = `{{ url_for('main.process_uploaded_squats', filename='') }}${data.filename}`;
+
+            squatFeed.onended = async function () {
+                const elapsed = Math.floor((Date.now() - squatTestStartTime) / 1000);
+                if (elapsed < TEST_DURATION) {
+                    setTimeout(endSquatTest, (TEST_DURATION - elapsed) * 1000);
+                } else {
+                    await endSquatTest();
+                }
             };
+        } catch (error) {
+            console.error("Error:", error);
+            alert("Error processing squat video");
+            clearInterval(squatTestTimer);
+        } finally {
+            uploadBtn.disabled = false;
+            uploadBtn.textContent = "Upload Video";
+        }
+    };
 
-        closeModal.onclick = function () {
+    document.getElementById("startPushupTest").onclick = function () {
+        modal.style.display = "block";
+    };
+
+    document.getElementById("startSquatTest").onclick = function () {
+        squatModal.style.display = "block";
+    };
+
+    document.querySelectorAll(".close").forEach((closeBtn) => {
+        closeBtn.onclick = function () {
             modal.style.display = "none";
             squatModal.style.display = "none";
             pushupFeed.src = "";
             squatFeed.src = "";
-        };
-
-        window.onclick = function (event) {
-            if (event.target == modal) {
-                modal.style.display = "none";
-                squatModal.style.display = "none";
-                pushupFeed.src = "";
-                squatFeed.src = "";
-            }
-        };
-
-        startPushupTest.onclick = function () {
-            pushupFeed.src = "{{ url_for('main.pushup_feed') }}";
-            setTimeout(() => {
-                fetch("{{ url_for('main.save_pushups') }}", { method: "POST" })
-                    .then(response => response.json())
-                    .then(data => {
-                        document.getElementById("pushups").value = data.count;
-                        pushupFeed.src = ""; // Stop the camera feed
-                        modal.style.display = "none";
-                        alert("Push-up count saved: " + data.count);
-
-                    })
-                    .catch(error => {
-                        console.error("Error saving push-ups:", error);
-                    });
-            }, 60000); // Run for 60 seconds
-        };
-
-        document.getElementById("startSquatCounter").onclick = function () {
-            squatFeed.src = "{{ url_for('main.squats_feed') }}";
-            setTimeout(() => {
-                fetch("{{ url_for('main.save_squats') }}", { method: "POST" })
-                    .then(response => response.json())
-                    .then(data => {
-                        document.getElementById("squats").value = data.count;
-                        squatModal.style.display = "none";
-                        alert("Squats recorded: " + data.count);
-                    })
-                    .catch(error => console.error("Error:", error));
-            }, 60000);
+            clearInterval(pushupTestTimer);
+            clearInterval(squatTestTimer);
         };
     });
+
+    window.onclick = function (event) {
+        if (event.target == modal || event.target == squatModal) {
+            modal.style.display = "none";
+            squatModal.style.display = "none";
+            pushupFeed.src = "";
+            squatFeed.src = "";
+            clearInterval(pushupTestTimer);
+            clearInterval(squatTestTimer);
+        }
+    };
+});
 </script>
 {% endblock %}

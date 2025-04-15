@@ -346,3 +346,51 @@ footer {
 
 
 
+
+#uploadPushupVideo {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+#uploadPushupVideo:hover {
+    background-color: #45a049;
+}
+
+#uploadSquatVideo {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+#uploadSquatVideo:hover {
+    background-color: #45a049;
+}
+
+#startSquatCounter {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    width: 50%;
+    align: center;
+}
+
+#startpushTest{
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    width: 50%;
+    align: center;
+}

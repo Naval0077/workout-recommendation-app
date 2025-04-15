@@ -32,7 +32,7 @@ max_duration = 60
 
 
 # Main squats function to be used in Flask route
-def generate_squats_frames():
+def generate_squats_frames(source_type='webcam', video_path=None):
     global repCount, start_time
     start_time = time.time()
     repCount = 0
@@ -41,7 +41,10 @@ def generate_squats_frames():
 
     mp_drawing = mp.solutions.drawing_utils
     mp_pose = mp.solutions.pose
-    cap = cv2.VideoCapture(0)
+    if source_type == 'webcam':
+        cap = cv2.VideoCapture(0)
+    else:
+        cap = cv2.VideoCapture(video_path)
 
     # Reduce frame resolution for better performance
     cap.set(3, 640)  # Width
